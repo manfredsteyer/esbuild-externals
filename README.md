@@ -1,27 +1,24 @@
-# Demo
+# Example: Loading Externals When Using esbuild
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.6.
+This example uses web standards for externals: EcmaScript Modules and Import Maps. This is basically what [Native Federation](https://www.angulararchitects.io/blog/micro-frontends-with-modern-angular-part-1-standalone-and-esbuild/) does, however, Native Federation adds more comfort on the top, making this here a black box.
 
-## Development server
+## Try it out
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+1. npm run build
+2. npm start
+3. Open the browser at http://localhost:3000
 
-## Code scaffolding
+In the dev tools' network tab, you should see now that libs are loaded as externals:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+![network tab shows that libs are loaded as externals](network.png)
 
-## Build
+## Limitations
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Currently, externals are only respected by ``ng build``. Regarding ``ng serve`` support, the Angular team has some ideas. [Native Federation](https://www.angulararchitects.io/blog/micro-frontends-with-modern-angular-part-1-standalone-and-esbuild/) already supports ``ng serve`` too by using a custom builder.
 
-## Running unit tests
+## How does it work?
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+1. The ``angular.json`` is configured to use the Angular CLI's new esbuild builder. Also, it defines that npm packages to share are external and, hence, not compiled together with the source code.
+2. A post-build script (``postbuild.mjs``) called as part of ``npm run build`` compiles libraries to share into separate EcmaScript modules.
+3. The postbuild script adds an Import Map to the ``index.html`` in the ``dist`` folder, mapping package names like ``@angular/core`` to the respective EcmaScript modules.
+4. For the sake of performance, the post-build script also inserts preload instructions to the ``index.html`` (e.g., ``<link rel="modulepreload" href="_angular_core.js" />``)

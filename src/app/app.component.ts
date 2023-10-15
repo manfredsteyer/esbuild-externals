@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SharedService } from '@demo/shared';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,10 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   title = 'demo';
+  service = inject(SharedService);
+  
+  constructor() {
+    const stuff = this.service.doStuff();
+    console.log('stuff', stuff);
+  }
 }
